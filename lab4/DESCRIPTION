@@ -1,0 +1,13 @@
+Package: lab4
+Type: Package
+Title: Multiple Regression Model 
+Version: 0.0099
+Date: 2019-09-21
+Author: Fengjuan Chen [aut,cre]
+
+Maintainer: Fengjuan Chen <fengjuanchen5@gmail.com>
+Description: This package can return the multiple regression models
+             for a specified data set.
+License: GPL 3
+Encode: UTF-8
+

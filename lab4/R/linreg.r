@@ -1,7 +1,15 @@
 linreg <- function(formula, data){
-  X <- model.matrix(formula,data)
   Z <- all.vars(formula)
+  for(i in 1:length(Z)){
+    if(!(Z[i] %in% names(data))) stop("wrong column name!")
+  }
+  
+  X <- model.matrix(formula,data)
+  
   y <- Z[1]
+  
+  cl <- match.call()
+  
   lnrg <- list()
   class(lnrg) <- "linreg"
   
@@ -25,16 +33,17 @@ linreg <- function(formula, data){
     tvalue[i] <- lnrg$regcoe[i,1]/sqrt(lnrg$varregcoe[i])
   }
   lnrg$tval <- tvalue
+  lnrg$pval <- pt(abs(lnrg$tval),lnrg$degfre, lower.tail = FALSE)
+  lnrg$call <- cl
+  
   return(lnrg)
 }
 
-resid.linreg <- function(x){
-  #print.default(x$residu)
+resid<- function(x){
   return(x$residu)
 }
 
-
-pred.linreg <- function(x){
+pred<- function(x){
   return(x$fitval)
 }
 coef.linreg <- function(x){
@@ -52,11 +61,14 @@ coef.linreg <- function(x){
 summary.linreg <- function(x){
   if(length(coef(x))){
     cat("Coefficients:\n")
+   
+    # the output has 5 columns, the first four are numeric, the fifth is character
+    #  change summ from matrix to data.frame
+    #  the fifth column has no name, so its name is placed by ""
     stderror <- sqrt(x$varregcoe)
-    
-    summ <- cbind(x$regcoe,stderror,x$tval)
-    colnames(summ) <- c("Estimate", "Std. Error", "t value")
-    print.default(summ, print.gap = 2,quote = FALSE)
+    summ <- data.frame(x$regcoe,stderror,x$tval,x$pval, c("***"),stringsAsFactors = F)
+    colnames(summ) <- c("Estimate", "Std. Error", "t value", "P(>|t|)","")
+    print(summ)
     cat("\n\nResidual standard error:", sqrt(x$resvar),"on",x$degfre, "degrees of freedom" )
   }
   else cat("No coefficients\n")
@@ -91,7 +103,7 @@ plot.linreg <- function(x){
 }
 
 print.linreg <- function(x, digits=max(3,getOption("digits")-3)){
-  cat("\nCall:\n", deparse(x), "\n\n", sep = "")
+  cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
   if(length(coef(x))){
     cat("Coefficients:\n")
     print.default(format(coef(x),digits = digits), print.gap = 2,quote = FALSE)

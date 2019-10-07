@@ -10,6 +10,8 @@
 #' @examples  linreg_mod <-linreg(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
 #'  summary(linreg_mod)
 #'
+library(ggplot2)
+library(easyGgplot2)
 linreg <- function(formula, data){
   Z <- all.vars(formula)
   for(i in 1:length(Z)){
@@ -92,12 +94,9 @@ plot.linreg <- function(x){
   data1 <- cbind(x$fitval,x$residu)
   data1 <- as.data.frame(data1)
   names(data1) <- c("fitval","residu")
-  p <- ggplot(data1, aes(x=fitval, y=residu)) + geom_point(shape=1)
-  p <- p + labs(x="Fitted values", y="Residuals") + ggtitle("Residuals vs Fitted")
-  p <- p + geom_smooth(method = lm)
-
-
-
+  p1 <- ggplot(data1, aes(x=fitval, y=residu)) + geom_point(shape=1)
+  p1 <- p1 + labs(x="Fitted values", y="Residuals") + ggtitle("Residuals vs Fitted")
+  p1 <- p1+ geom_smooth(method = lm)
 
   sca_resvar <- x$resvar[1,1]
   st <- sqrt(sca_resvar)
@@ -108,11 +107,8 @@ plot.linreg <- function(x){
   names(data2) <- c("fitval","stadarres")
   p2 <- ggplot(data2, aes(x=fitval, y=stadarres)) + geom_point(shape=1)
   p2 <- p2+ labs(x="Fitted values", y="|Standardized residuals|") + ggtitle("Scale-Location")
-  p12<-list(p,p2)
-  return(p12)
-
-
-
+  
+  ggplot2.multiplot(p1,p2,cols=2)
 }
 
 print.linreg <- function(x, digits=max(3,getOption("digits")-3)){
